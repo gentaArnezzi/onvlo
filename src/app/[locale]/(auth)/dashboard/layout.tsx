@@ -1,7 +1,9 @@
 import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
+import Link from 'next/link';
 
 import { DashboardHeader } from '@/features/dashboard/DashboardHeader';
+import { ActiveLink } from '@/components/ActiveLink';
 
 export async function generateMetadata(props: { params: { locale: string } }) {
   const t = await getTranslations({
@@ -21,23 +23,49 @@ export default function DashboardLayout(props: { children: React.ReactNode }) {
   return (
     <>
       <div className="shadow-md">
-        <div className="mx-auto flex max-w-screen-xl items-center justify-between px-3 py-4">
+        <div className="mx-auto flex max-w-screen-xl items-center justify-between gap-4 px-3 py-4">
           <DashboardHeader
             menu={[
               {
                 href: '/dashboard',
                 label: t('home'),
               },
-              // PRO: Link to the /dashboard/todos page
+              {
+                href: '/dashboard/leads',
+                label: 'Leads',
+              },
+              {
+                href: '/dashboard/clients',
+                label: 'Clients',
+              },
+              {
+                href: '/dashboard/projects',
+                label: 'Projects',
+              },
+              {
+                href: '/dashboard/tasks',
+                label: 'Tasks',
+              },
+              {
+                href: '/dashboard/proposals',
+                label: 'Proposals',
+              },
+              {
+                href: '/dashboard/invoices',
+                label: 'Invoices',
+              },
+              {
+                href: '/dashboard/onboarding-funnels',
+                label: 'Onboarding Funnels',
+              },
+              {
+                href: '/dashboard/settings',
+                label: 'Settings',
+              },
               {
                 href: '/dashboard/organization-profile/organization-members',
                 label: t('members'),
               },
-              {
-                href: '/dashboard/organization-profile',
-                label: t('settings'),
-              },
-              // PRO: Link to the /dashboard/billing page
             ]}
           />
         </div>

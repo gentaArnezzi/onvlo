@@ -1,11 +1,12 @@
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
-import { MessageState } from '@/features/dashboard/MessageState';
 import { TitleBar } from '@/features/dashboard/TitleBar';
-import { SponsorLogos } from '@/features/sponsors/SponsorLogos';
+import { getDashboardStats, getRecentActivity } from './actions';
 
-const DashboardIndexPage = () => {
-  const t = useTranslations('DashboardIndex');
+const DashboardIndexPage = async () => {
+  const t = await getTranslations('DashboardIndex');
+  const stats = await getDashboardStats();
+  const activity = await getRecentActivity();
 
   return (
     <>
@@ -14,48 +15,71 @@ const DashboardIndexPage = () => {
         description={t('title_bar_description')}
       />
 
-      <MessageState
-        icon={(
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M0 0h24v24H0z" stroke="none" />
-            <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3M12 12l8-4.5M12 12v9M12 12L4 7.5" />
-          </svg>
-        )}
-        title={t('message_state_title')}
-        description={t.rich('message_state_description', {
-          code: chunks => (
-            <code className="bg-secondary text-secondary-foreground">
-              {chunks}
-            </code>
-          ),
-        })}
-        button={(
-          <>
-            <div className="mt-2 text-sm font-light text-muted-foreground">
-              {t.rich('message_state_alternative', {
-                url: () => (
-                  <a
-                    className="text-blue-500 hover:text-blue-600"
-                    href="https://nextjs-boilerplate.com/pro-saas-starter-kit"
-                  >
-                    Next.js Boilerplate SaaS
-                  </a>
-                ),
-              })}
-            </div>
+      <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-lg border bg-card p-6">
+          <div className="text-sm font-medium text-muted-foreground">
+            Active Clients
+          </div>
+          <div className="mt-2 text-3xl font-bold">{stats.activeClients}</div>
+        </div>
 
-            <div className="mt-7">
-              <SponsorLogos />
-            </div>
-          </>
-        )}
-      />
+        <div className="rounded-lg border bg-card p-6">
+          <div className="text-sm font-medium text-muted-foreground">
+            Active Projects
+          </div>
+          <div className="mt-2 text-3xl font-bold">{stats.activeProjects}</div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-6">
+          <div className="text-sm font-medium text-muted-foreground">
+            Revenue (30 days)
+          </div>
+          <div className="mt-2 text-3xl font-bold">
+            ${stats.revenue30Days.toLocaleString()}
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-6">
+          <div className="text-sm font-medium text-muted-foreground">
+            Overdue Invoices
+          </div>
+          <div className="mt-2 text-3xl font-bold">{stats.overdueInvoices}</div>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="rounded-lg border bg-card p-6">
+          <h3 className="mb-4 text-lg font-semibold">Recent Projects</h3>
+          {activity.recentProjects.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No projects yet</p>
+          ) : (
+            <ul className="space-y-2">
+              {activity.recentProjects.map((project) => (
+                <li key={project.id} className="text-sm">
+                  <div className="font-medium">{project.title}</div>
+                  <div className="text-muted-foreground">{project.status}</div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-lg border bg-card p-6">
+          <h3 className="mb-4 text-lg font-semibold">Recent Tasks</h3>
+          {activity.recentTasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No tasks yet</p>
+          ) : (
+            <ul className="space-y-2">
+              {activity.recentTasks.map((task) => (
+                <li key={task.id} className="text-sm">
+                  <div className="font-medium">{task.title}</div>
+                  <div className="text-muted-foreground">{task.status}</div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </>
   );
 };
