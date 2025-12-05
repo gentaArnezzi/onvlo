@@ -13,6 +13,10 @@ import { createPaymentLink } from '../stripe-actions';
 import { InvoiceFormWrapper } from '@/components/forms/InvoiceFormWrapper';
 import { getClients } from '../../clients/actions';
 import { getProjects } from '../../projects/actions';
+import { InvoiceDownloadButton } from '@/components/invoices/InvoiceDownloadButton';
+import { db } from '@/libs/DB';
+import { organizationSchema } from '@/models/Schema';
+import { eq } from 'drizzle-orm';
 
 interface InvoiceDetailPageProps {
   params: { id: string; locale: string };
@@ -34,6 +38,12 @@ const InvoiceDetailPage = async ({ params }: InvoiceDetailPageProps) => {
     getClients(),
     getProjects(),
   ]);
+
+  const [organization] = await db
+    .select()
+    .from(organizationSchema)
+    .where(eq(organizationSchema.id, invoice.organizationId))
+    .limit(1);
 
   async function handleUpdate(data: any) {
     'use server';
@@ -177,6 +187,15 @@ const InvoiceDetailPage = async ({ params }: InvoiceDetailPageProps) => {
                   Delete Invoice
                 </Button>
               </form>
+              
+              <div className="pt-2 border-t">
+                <InvoiceDownloadButton 
+                  invoice={invoice}
+                  items={items}
+                  client={clients.find(c => c.id === invoice.clientId)}
+                  organization={organization}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -22,10 +22,23 @@ export function ClientFormWrapper({
     router.push(cancelUrl);
   };
 
+  const handleSubmit = async (data: ClientFormData) => {
+    // Convert empty strings and null to undefined for server action
+    const sanitizedData: any = {
+      name: data.name,
+      status: data.status,
+      email: data.email || undefined,
+      phone: data.phone || undefined,
+      company: data.company || undefined,
+      notes: data.notes || undefined,
+    };
+    await onSubmit(sanitizedData);
+  };
+
   return (
     <ClientForm
       defaultValues={defaultValues}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       onCancel={handleCancel}
       isLoading={isLoading}
     />

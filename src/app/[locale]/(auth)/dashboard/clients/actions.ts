@@ -27,7 +27,11 @@ export async function createClient(data: z.infer<typeof createClientSchema>) {
     })
     .returning();
 
-  return client;
+  if (!client) {
+    throw new Error('Failed to create client');
+  }
+
+  return { id: client.id };
 }
 
 export async function getClients() {
@@ -66,7 +70,11 @@ export async function updateClient(
     .where(and(eq(clientsSchema.id, id), eq(clientsSchema.organizationId, orgId)))
     .returning();
 
-  return client;
+  if (!client) {
+    throw new Error('Failed to update client');
+  }
+
+  return { id: client.id };
 }
 
 export async function deleteClient(id: number) {

@@ -31,7 +31,11 @@ export async function createProject(data: z.infer<typeof createProjectSchema>) {
     })
     .returning();
 
-  return project;
+  if (!project) {
+    throw new Error('Failed to create project');
+  }
+
+  return { id: project.id };
 }
 
 export async function getProjects() {
@@ -70,7 +74,11 @@ export async function updateProject(
     .where(and(eq(projectsSchema.id, id), eq(projectsSchema.organizationId, orgId)))
     .returning();
 
-  return project;
+  if (!project) {
+    throw new Error('Failed to update project');
+  }
+
+  return { id: project.id };
 }
 
 export async function deleteProject(id: number) {

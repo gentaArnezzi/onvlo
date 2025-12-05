@@ -9,11 +9,11 @@ import { Label } from '@/components/ui/label';
 
 const clientFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
-  phone: z.string().optional(),
-  company: z.string().optional(),
+  email: z.string().email('Invalid email').nullable().or(z.literal('')),
+  phone: z.string().nullable(),
+  company: z.string().nullable(),
   status: z.enum(['active', 'inactive', 'archived']),
-  notes: z.string().optional(),
+  notes: z.string().nullable(),
 });
 
 export type ClientFormData = z.infer<typeof clientFormSchema>;

@@ -9,8 +9,7 @@ import { getClientById } from '../../clients/actions';
 import { ProjectFormWrapper } from '@/components/forms/ProjectFormWrapper';
 import { getClients } from '../../clients/actions';
 import { getProjectFiles, deleteProjectFile } from './actions';
-import { FileUpload } from '@/components/files/FileUpload';
-import { FileList } from '@/components/files/FileList';
+import { ProjectFiles } from '@/components/files/ProjectFiles';
 
 interface ProjectDetailPageProps {
   params: { id: string; locale: string };
@@ -176,21 +175,14 @@ const ProjectDetailPage = async ({ params }: ProjectDetailPageProps) => {
           {/* Files Section */}
           <div className="rounded-lg border bg-card p-6">
             <h3 className="mb-4 text-lg font-semibold">Files</h3>
-            <div className="space-y-4">
-              <FileUpload
-                projectId={projectId}
-                onUploadComplete={() => redirect(`/dashboard/projects/${projectId}`)}
-              />
-              <FileList
-                files={files.map((f) => ({
-                  ...f,
-                  createdAt: new Date(f.createdAt),
-                }))}
-                canDelete
-                onDelete={handleDeleteFile}
-                onRefresh={() => redirect(`/dashboard/projects/${projectId}`)}
-              />
-            </div>
+            <ProjectFiles
+              projectId={projectId}
+              files={files.map((f) => ({
+                ...f,
+                createdAt: new Date(f.createdAt),
+              }))}
+              onDelete={handleDeleteFile}
+            />
           </div>
         </div>
       </div>
