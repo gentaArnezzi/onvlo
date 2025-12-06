@@ -1,17 +1,18 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
+import { TasksKanbanView } from '@/components/kanban/TasksKanbanView';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
+
 import { getTasks, updateTask } from '../actions';
-import { TasksKanbanView } from '@/components/kanban/TasksKanbanView';
 
 const TasksKanbanPage = async () => {
   const tasks = await getTasks();
 
   async function handleMoveTask(
     taskId: string,
-    fromStatus: string,
+
     toStatus: string,
   ) {
     'use server';
@@ -43,4 +44,3 @@ const TasksKanbanPage = async () => {
 };
 
 export default TasksKanbanPage;
-

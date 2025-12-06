@@ -1,23 +1,23 @@
-import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
 
+import { ProjectFiles } from '@/components/files/ProjectFiles';
+import { ProjectFormWrapper } from '@/components/forms/ProjectFormWrapper';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
-import { getProjectById, updateProject, deleteProject } from '../actions';
-import { getTasksByProject } from '../../tasks/actions';
-import { getClientById } from '../../clients/actions';
-import { ProjectFormWrapper } from '@/components/forms/ProjectFormWrapper';
-import { getClients } from '../../clients/actions';
-import { getProjectFiles, deleteProjectFile } from './actions';
-import { ProjectFiles } from '@/components/files/ProjectFiles';
 
-interface ProjectDetailPageProps {
+import { getClientById, getClients } from '../../clients/actions';
+import { getTasksByProject } from '../../tasks/actions';
+import { deleteProject, getProjectById, updateProject } from '../actions';
+import { deleteProjectFile, getProjectFiles } from './actions';
+
+type ProjectDetailPageProps = {
   params: { id: string; locale: string };
-}
+};
 
 const ProjectDetailPage = async ({ params }: ProjectDetailPageProps) => {
   const projectId = Number(params.id);
-  if (isNaN(projectId)) {
+  if (Number.isNaN(projectId)) {
     notFound();
   }
 
@@ -111,25 +111,27 @@ const ProjectDetailPage = async ({ params }: ProjectDetailPageProps) => {
 
           <div className="rounded-lg border bg-card p-6">
             <h3 className="mb-4 text-lg font-semibold">Tasks</h3>
-            {tasks.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No tasks yet</p>
-            ) : (
-              <ul className="space-y-2">
-                {tasks.map((task) => (
-                  <li key={task.id}>
-                    <Link
-                      href={`/dashboard/tasks/${task.id}`}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      {task.title}
-                    </Link>
-                    <span className="ml-2 rounded-full bg-muted px-2 py-1 text-xs">
-                      {task.status}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {tasks.length === 0
+              ? (
+                  <p className="text-sm text-muted-foreground">No tasks yet</p>
+                )
+              : (
+                  <ul className="space-y-2">
+                    {tasks.map(task => (
+                      <li key={task.id}>
+                        <Link
+                          href={`/dashboard/tasks/${task.id}`}
+                          className="text-sm text-primary hover:underline"
+                        >
+                          {task.title}
+                        </Link>
+                        <span className="ml-2 rounded-full bg-muted px-2 py-1 text-xs">
+                          {task.status}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
             <Link href={`/dashboard/tasks/new?projectId=${projectId}`}>
               <Button variant="outline" className="mt-4 w-full">
                 Create New Task
@@ -177,8 +179,11 @@ const ProjectDetailPage = async ({ params }: ProjectDetailPageProps) => {
             <h3 className="mb-4 text-lg font-semibold">Files</h3>
             <ProjectFiles
               projectId={projectId}
-              files={files.map((f) => ({
+              files={files.map(f => ({
                 ...f,
+                size: f.size || 0,
+                mimeType: f.mimeType || 'application/octet-stream',
+                url: f.url,
                 createdAt: new Date(f.createdAt),
               }))}
               onDelete={handleDeleteFile}
@@ -191,4 +196,3 @@ const ProjectDetailPage = async ({ params }: ProjectDetailPageProps) => {
 };
 
 export default ProjectDetailPage;
-

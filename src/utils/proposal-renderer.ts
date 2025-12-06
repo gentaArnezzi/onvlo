@@ -1,4 +1,4 @@
-export interface ProposalData {
+export type ProposalData = {
   client_name?: string;
   company?: string;
   email?: string;
@@ -8,7 +8,7 @@ export interface ProposalData {
   start_date?: string;
   end_date?: string;
   [key: string]: any;
-}
+};
 
 export function renderProposalTemplate(
   template: string,
@@ -55,12 +55,12 @@ export function extractPlaceholders(template: string): string[] {
   const placeholders: string[] = [];
   let match;
 
-  while ((match = regex.exec(template)) !== null) {
-    if (!placeholders.includes(match[1])) {
+  do {
+    match = regex.exec(template);
+    if (match && match[1] && !placeholders.includes(match[1])) {
       placeholders.push(match[1]);
     }
-  }
+  } while (match !== null);
 
   return placeholders;
 }
-

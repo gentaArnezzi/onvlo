@@ -5,13 +5,13 @@ import { usePathname } from 'next/navigation';
 
 import { cn } from '@/utils/Helpers';
 
-interface ActiveLinkProps {
+type ActiveLinkProps = {
   href: string;
   children: React.ReactNode;
   className?: string;
   activeClassName?: string;
   inactiveClassName?: string;
-}
+};
 
 export const ActiveLink = ({
   href,
@@ -21,7 +21,7 @@ export const ActiveLink = ({
   inactiveClassName,
 }: ActiveLinkProps) => {
   const pathname = usePathname();
-  
+
   // Special handling for "/dashboard" - only active on exact match
   // For other routes, check if pathname starts with href
   let isActive: boolean;

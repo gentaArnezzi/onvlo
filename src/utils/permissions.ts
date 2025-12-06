@@ -1,4 +1,4 @@
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 
 import { ORG_ROLE } from '@/types/Auth';
 
@@ -30,4 +30,3 @@ export async function requireOwnerOrAdmin() {
 export function canAccess(resourceOrgId: string, userOrgId: string | null): boolean {
   return resourceOrgId === userOrgId;
 }
-

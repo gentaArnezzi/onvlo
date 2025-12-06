@@ -1,16 +1,17 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
+import { TaskFormWrapper } from '@/components/forms/TaskFormWrapper';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
-import { createTask } from '../actions';
-import { getProjects } from '../../projects/actions';
-import { TaskFormWrapper } from '@/components/forms/TaskFormWrapper';
 
-interface NewTaskPageProps {
+import { getProjects } from '../../projects/actions';
+import { createTask } from '../actions';
+
+type NewTaskPageProps = {
   params: { locale: string };
   searchParams: Promise<{ projectId?: string }>;
-}
+};
 
 const NewTaskPage = async ({ searchParams }: NewTaskPageProps) => {
   const params = await searchParams;
@@ -24,6 +25,9 @@ const NewTaskPage = async ({ searchParams }: NewTaskPageProps) => {
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
     };
     const task = await createTask(taskData);
+    if (!task) {
+      throw new Error('Failed to create task');
+    }
     redirect(`/dashboard/tasks/${task.id}`);
   }
 
@@ -53,4 +57,3 @@ const NewTaskPage = async ({ searchParams }: NewTaskPageProps) => {
 };
 
 export default NewTaskPage;
-

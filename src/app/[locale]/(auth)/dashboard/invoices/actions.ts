@@ -1,10 +1,11 @@
 'use server';
 
+import { and, eq } from 'drizzle-orm';
+import { z } from 'zod';
+
 import { db } from '@/libs/DB';
 import { invoiceItemsSchema, invoicesSchema } from '@/models/Schema';
 import { requireAuth } from '@/utils/permissions';
-import { and, eq, sql } from 'drizzle-orm';
-import { z } from 'zod';
 
 const invoiceItemSchema = z.object({
   description: z.string().min(1),
@@ -52,11 +53,15 @@ export async function createInvoice(data: z.infer<typeof createInvoiceSchema>) {
     })
     .returning();
 
+  if (!invoice) {
+    throw new Error('Failed to create invoice');
+  }
+
   // Create invoice items
   const items = await db
     .insert(invoiceItemsSchema)
     .values(
-      validated.items.map((item) => ({
+      validated.items.map(item => ({
         invoiceId: invoice.id,
         description: item.description,
         quantity: item.quantity,
@@ -84,7 +89,6 @@ export async function getInvoices() {
     if (
       invoice.status === 'Sent'
       && invoice.dueDate < today
-      && invoice.status !== 'Overdue'
     ) {
       await db
         .update(invoicesSchema)
@@ -146,7 +150,7 @@ export async function updateInvoice(
     await db.delete(invoiceItemsSchema).where(eq(invoiceItemsSchema.invoiceId, id));
 
     await db.insert(invoiceItemsSchema).values(
-      data.items.map((item) => ({
+      data.items.map(item => ({
         invoiceId: id,
         description: item.description,
         quantity: item.quantity,
@@ -204,4 +208,3 @@ export async function markInvoicePaid(id: number, paymentIntentId?: string) {
 
   return invoice;
 }
-

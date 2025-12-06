@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
+import { useRef, useState } from 'react';
 
-interface FileUploadProps {
+type FileUploadProps = {
   projectId?: number;
   onUploadComplete?: () => void;
-}
+};
 
 export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
   const [uploading, setUploading] = useState(false);
@@ -15,13 +14,18 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0) {
+      return;
+    }
 
     setUploading(true);
     setError('');
 
     try {
       const file = files[0];
+      if (!file) {
+        return;
+      }
       const formData = new FormData();
       formData.append('file', file);
       if (projectId) {
@@ -87,15 +91,15 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
         <input
           ref={fileInputRef}
           type="file"
-          onChange={(e) => handleFileUpload(e.target.files)}
+          onChange={e => handleFileUpload(e.target.files)}
           className="hidden"
           disabled={uploading}
         />
 
         <div className="space-y-4">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-muted">
             <svg
-              className="h-6 w-6 text-muted-foreground"
+              className="size-6 text-muted-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -111,7 +115,8 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
 
           <div>
             <p className="text-sm text-muted-foreground">
-              Drag and drop your file here, or{' '}
+              Drag and drop your file here, or
+              {' '}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -140,4 +145,3 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
     </div>
   );
 }
-

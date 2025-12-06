@@ -1,16 +1,18 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { InvoicePDF } from './InvoicePDF';
 import { useEffect, useState } from 'react';
 
-interface InvoiceDownloadButtonProps {
+import { Button } from '@/components/ui/button';
+
+import { InvoicePDF } from './InvoicePDF';
+
+type InvoiceDownloadButtonProps = {
   invoice: any;
   items: any[];
   client: any;
   organization: any;
-}
+};
 
 export function InvoiceDownloadButton({
   invoice,
@@ -34,17 +36,17 @@ export function InvoiceDownloadButton({
 
   return (
     <PDFDownloadLink
-      document={
+      document={(
         <InvoicePDF
           invoice={invoice}
           items={items}
           client={client}
           organization={organization}
         />
-      }
+      )}
       fileName={`invoice-${invoice.invoiceNumber}.pdf`}
     >
-      {({ blob, url, loading, error }) => (
+      {({ loading }) => (
         <Button variant="outline" className="w-full" disabled={loading}>
           {loading ? 'Generating PDF...' : 'Download PDF'}
         </Button>

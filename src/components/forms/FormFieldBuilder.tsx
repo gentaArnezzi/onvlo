@@ -1,23 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export interface FormField {
+export type FormField = {
   id: string;
   type: 'text' | 'textarea' | 'select' | 'checkbox';
   label: string;
   placeholder?: string;
   required: boolean;
   options?: string[]; // For select type
-}
+};
 
-interface FormFieldBuilderProps {
+type FormFieldBuilderProps = {
   fields: FormField[];
   onChange: (fields: FormField[]) => void;
-}
+};
 
 export function FormFieldBuilder({ fields, onChange }: FormFieldBuilderProps) {
   const [editingField, setEditingField] = useState<FormField | null>(null);
@@ -34,9 +35,9 @@ export function FormFieldBuilder({ fields, onChange }: FormFieldBuilderProps) {
   };
 
   const saveField = (field: FormField) => {
-    if (fields.find((f) => f.id === field.id)) {
+    if (fields.find(f => f.id === field.id)) {
       // Update existing
-      onChange(fields.map((f) => (f.id === field.id ? field : f)));
+      onChange(fields.map(f => (f.id === field.id ? field : f)));
     } else {
       // Add new
       onChange([...fields, field]);
@@ -45,7 +46,7 @@ export function FormFieldBuilder({ fields, onChange }: FormFieldBuilderProps) {
   };
 
   const removeField = (id: string) => {
-    onChange(fields.filter((f) => f.id !== id));
+    onChange(fields.filter(f => f.id !== id));
   };
 
   return (
@@ -90,7 +91,7 @@ export function FormFieldBuilder({ fields, onChange }: FormFieldBuilderProps) {
 
       {/* Existing Fields */}
       <div className="space-y-2">
-        {fields.map((field, index) => (
+        {fields.map(field => (
           <div key={field.id} className="flex items-center gap-2 rounded-md border p-3">
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -136,11 +137,11 @@ export function FormFieldBuilder({ fields, onChange }: FormFieldBuilderProps) {
   );
 }
 
-interface FieldEditorProps {
+type FieldEditorProps = {
   field: FormField;
   onSave: (field: FormField) => void;
   onCancel: () => void;
-}
+};
 
 function FieldEditor({ field, onSave, onCancel }: FieldEditorProps) {
   const [editedField, setEditedField] = useState<FormField>(field);
@@ -169,7 +170,11 @@ function FieldEditor({ field, onSave, onCancel }: FieldEditorProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-lg rounded-lg border bg-background p-6">
         <h3 className="mb-4 text-lg font-semibold">
-          Edit {editedField.type} Field
+          Edit
+          {' '}
+          {editedField.type}
+          {' '}
+          Field
         </h3>
 
         <div className="space-y-4">
@@ -178,7 +183,7 @@ function FieldEditor({ field, onSave, onCancel }: FieldEditorProps) {
             <Input
               id="field-label"
               value={editedField.label}
-              onChange={(e) => updateField({ label: e.target.value })}
+              onChange={e => updateField({ label: e.target.value })}
               placeholder="Enter field label"
             />
           </div>
@@ -189,7 +194,7 @@ function FieldEditor({ field, onSave, onCancel }: FieldEditorProps) {
               <Input
                 id="field-placeholder"
                 value={editedField.placeholder || ''}
-                onChange={(e) => updateField({ placeholder: e.target.value })}
+                onChange={e => updateField({ placeholder: e.target.value })}
                 placeholder="Enter placeholder text"
               />
             </div>
@@ -200,10 +205,10 @@ function FieldEditor({ field, onSave, onCancel }: FieldEditorProps) {
               <Label>Options</Label>
               <div className="mt-2 space-y-2">
                 {(editedField.options || ['']).map((option, index) => (
-                  <div key={index} className="flex gap-2">
+                  <div key={`${editedField.id}-option-${index}`} className="flex gap-2">
                     <Input
                       value={option}
-                      onChange={(e) => updateOptions(index, e.target.value)}
+                      onChange={e => updateOptions(index, e.target.value)}
                       placeholder={`Option ${index + 1}`}
                     />
                     <Button
@@ -233,8 +238,8 @@ function FieldEditor({ field, onSave, onCancel }: FieldEditorProps) {
               type="checkbox"
               id="field-required"
               checked={editedField.required}
-              onChange={(e) => updateField({ required: e.target.checked })}
-              className="h-4 w-4 rounded border-gray-300"
+              onChange={e => updateField({ required: e.target.checked })}
+              className="size-4 rounded border-gray-300"
             />
             <Label htmlFor="field-required" className="cursor-pointer">
               Required field
@@ -258,4 +263,3 @@ function FieldEditor({ field, onSave, onCancel }: FieldEditorProps) {
     </div>
   );
 }
-

@@ -1,23 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { and, eq } from 'drizzle-orm';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
 import { db } from '@/libs/DB';
 import { filesSchema } from '@/models/Schema';
-import { and, eq } from 'drizzle-orm';
 import { deleteFile } from '@/utils/storage';
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } },
 ) {
   try {
-    const { userId, orgId } = auth();
+    const { userId, orgId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const fileId = Number(params.id);
-    if (isNaN(fileId)) {
+    if (Number.isNaN(fileId)) {
       return NextResponse.json({ error: 'Invalid file ID' }, { status: 400 });
     }
 
@@ -54,4 +56,3 @@ export async function DELETE(
     );
   }
 }
-

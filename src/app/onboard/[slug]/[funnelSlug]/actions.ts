@@ -1,5 +1,8 @@
 'use server';
 
+import { and, eq } from 'drizzle-orm';
+import { redirect } from 'next/navigation';
+
 import { db } from '@/libs/DB';
 import {
   clientsSchema,
@@ -8,8 +11,6 @@ import {
   organizationSchema,
   projectsSchema,
 } from '@/models/Schema';
-import { and, eq } from 'drizzle-orm';
-import { redirect } from 'next/navigation';
 
 export async function submitOnboardingData(
   orgSlug: string,
@@ -66,10 +67,15 @@ export async function submitOnboardingData(
   // Create onboarding submission
   await db.insert(onboardingSubmissionsSchema).values({
     funnelId: funnel.id,
-    clientId: client.id,
+    clientId: client?.id ?? null,
     responses: data,
     status: 'completed',
-  });
+  }).returning();
+
+  // Only proceed with further steps if client was created successfully
+  if (!client) {
+    throw new Error('Failed to create client');
+  }
 
   // Auto-create project if configured
   const config = funnel.config as any || {};
@@ -84,11 +90,38 @@ export async function submitOnboardingData(
       organizationId: org.id,
       clientId: client.id,
       title: projectTitle,
-      status: 'planned',
+      description: `Project created from onboarding funnel: ${funnel.name}`,
+      status: 'Planned',
       ownerId: null, // Will be assigned later by agency
     });
   }
 
+  // Send email notifications (non-blocking - use Promise.allSettled to not block redirect)
+  try {
+    const { sendOnboardingConfirmationEmail } = await import('@/utils/email');
+
+    const emailPromises = [];
+
+    // Send welcome email to client
+    if (client.email) {
+      emailPromises.push(
+        sendOnboardingConfirmationEmail({
+          clientEmail: client.email,
+          clientName: client.name,
+          organizationName: org.name || 'FlowStack Pro',
+        }),
+      );
+    }
+
+    // Send notification to organization owner
+    // TODO: Fetch organization owner email from Clerk and send notification
+
+    // Execute all email sends in parallel (non-blocking)
+    await Promise.allSettled(emailPromises);
+  } catch (error) {
+    // Log email errors but don't block the flow
+    console.error('[Onboarding] Email notification error:', error);
+  }
+
   redirect(`/onboard/${orgSlug}/${funnelSlug}/success`);
 }
-

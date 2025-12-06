@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-interface SignatureFormProps {
+type SignatureFormProps = {
   proposalId: number;
   onSign: (signedBy: string) => Promise<void>;
-}
+};
 
-export function SignatureForm({ proposalId, onSign }: SignatureFormProps) {
+export function SignatureForm({ onSign }: SignatureFormProps) {
   const [signedBy, setSignedBy] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +50,7 @@ export function SignatureForm({ proposalId, onSign }: SignatureFormProps) {
           id="signedBy"
           type="text"
           value={signedBy}
-          onChange={(e) => setSignedBy(e.target.value)}
+          onChange={e => setSignedBy(e.target.value)}
           placeholder="Enter your full name"
           disabled={isLoading}
         />
@@ -60,9 +61,9 @@ export function SignatureForm({ proposalId, onSign }: SignatureFormProps) {
           type="checkbox"
           id="agree"
           checked={agreed}
-          onChange={(e) => setAgreed(e.target.checked)}
+          onChange={e => setAgreed(e.target.checked)}
           disabled={isLoading}
-          className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300"
+          className="mt-1 size-4 shrink-0 rounded border-gray-300"
         />
         <Label htmlFor="agree" className="cursor-pointer">
           I have read and agree to the terms outlined in this proposal. By signing, I
@@ -83,4 +84,3 @@ export function SignatureForm({ proposalId, onSign }: SignatureFormProps) {
     </form>
   );
 }
-

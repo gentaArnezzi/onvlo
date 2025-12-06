@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { replacePlaceholders, ReplacementData } from './placeholder';
+import { describe, expect, it } from 'vitest';
+
+import type { ReplacementData } from './placeholder';
+import { replacePlaceholders } from './placeholder';
 
 describe('replacePlaceholders', () => {
   const mockData: ReplacementData = {
@@ -20,18 +22,21 @@ describe('replacePlaceholders', () => {
   it('should replace client placeholders', () => {
     const content = 'Hello {{client_name}} from {{client_company}} ({{client_email}})';
     const result = replacePlaceholders(content, mockData);
+
     expect(result).toBe('Hello John Doe from Acme Corp (john@example.com)');
   });
 
   it('should replace agency placeholders', () => {
     const content = 'Best regards, {{agency_name}}';
     const result = replacePlaceholders(content, mockData);
+
     expect(result).toBe('Best regards, My Agency');
   });
 
   it('should replace proposal placeholders', () => {
     const content = 'Date: {{proposal_date}}';
     const result = replacePlaceholders(content, mockData);
+
     // Date formatting depends on locale, but let's check it contains 2023
     expect(result).toContain('2023');
   });
@@ -45,6 +50,7 @@ describe('replacePlaceholders', () => {
     };
     const content = 'Hello {{client_name}}';
     const result = replacePlaceholders(content, emptyData);
+
     expect(result).toBe('Hello ');
   });
 
@@ -61,6 +67,7 @@ describe('replacePlaceholders', () => {
     };
     const content = 'Hello {{client_name}}';
     const result = replacePlaceholders(content, leadData);
+
     expect(result).toBe('Hello Jane Lead');
   });
 });

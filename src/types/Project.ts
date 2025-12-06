@@ -1,6 +1,6 @@
 export type ProjectStatus = 'Planned' | 'Active' | 'On Hold' | 'Completed' | 'Cancelled';
 
-export interface Project {
+export type Project = {
   id: number;
   organizationId: string;
   clientId: number;
@@ -13,5 +13,4 @@ export interface Project {
   ownerId: string | null;
   createdAt: Date;
   updatedAt: Date;
-}
-
+};

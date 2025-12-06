@@ -1,10 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { FileUpload } from './FileUpload';
-import { FileList } from './FileList';
 
-interface ProjectFilesProps {
+import { FileList } from './FileList';
+import { FileUpload } from './FileUpload';
+
+type ProjectFilesProps = {
   projectId: number;
   files: Array<{
     id: number;
@@ -15,7 +16,7 @@ interface ProjectFilesProps {
     createdAt: Date;
   }>;
   onDelete: (fileId: number) => Promise<void>;
-}
+};
 
 export function ProjectFiles({ projectId, files, onDelete }: ProjectFilesProps) {
   const router = useRouter();
@@ -39,7 +40,11 @@ export function ProjectFiles({ projectId, files, onDelete }: ProjectFilesProps) 
         onUploadComplete={handleUploadComplete}
       />
       <FileList
-        files={files}
+        files={files.map(f => ({
+          ...f,
+          size: f.size || 0,
+          mimeType: f.mimeType || 'application/octet-stream',
+        }))}
         canDelete
         onDelete={handleDelete}
         onRefresh={handleRefresh}

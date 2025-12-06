@@ -1,30 +1,31 @@
-import { notFound } from 'next/navigation';
+import { and, eq } from 'drizzle-orm';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
+import { FileList } from '@/components/files/FileList';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
-import { getClientPortalData } from '../../actions';
 import { db } from '@/libs/DB';
-import { tasksSchema, invoicesSchema, filesSchema } from '@/models/Schema';
-import { and, eq } from 'drizzle-orm';
-import { FileList } from '@/components/files/FileList';
+import { filesSchema, invoicesSchema, tasksSchema } from '@/models/Schema';
 
-interface ProjectDetailPageProps {
+import { getClientPortalData } from '../../actions';
+
+type ProjectDetailPageProps = {
   params: { id: string; locale: string };
-}
+};
 
 const ClientProjectDetailPage = async ({
   params,
 }: ProjectDetailPageProps) => {
   const projectId = Number(params.id);
-  if (isNaN(projectId)) {
+  if (Number.isNaN(projectId)) {
     notFound();
   }
 
   const data = await getClientPortalData();
   const { projects } = data;
 
-  const project = projects.find((p) => p.id === projectId);
+  const project = projects.find(p => p.id === projectId);
 
   if (!project) {
     notFound();
@@ -122,7 +123,8 @@ const ClientProjectDetailPage = async ({
                   Budget
                 </dt>
                 <dd className="mt-1 text-sm font-medium">
-                  ${project.budget.toFixed(2)}
+                  $
+                  {project.budget.toFixed(2)}
                 </dd>
               </div>
             )}
@@ -134,7 +136,7 @@ const ClientProjectDetailPage = async ({
             <div className="rounded-lg border bg-card p-6">
               <h3 className="mb-4 text-lg font-semibold">Tasks</h3>
               <div className="space-y-2">
-                {tasks.map((task) => (
+                {tasks.map(task => (
                   <div
                     key={task.id}
                     className="rounded-md border bg-background p-3"
@@ -165,7 +167,7 @@ const ClientProjectDetailPage = async ({
             <div className="rounded-lg border bg-card p-6">
               <h3 className="mb-4 text-lg font-semibold">Invoices</h3>
               <div className="space-y-2">
-                {invoices.map((invoice) => (
+                {invoices.map(invoice => (
                   <Link
                     key={invoice.id}
                     href={`/client/invoices/${invoice.id}`}
@@ -175,7 +177,8 @@ const ClientProjectDetailPage = async ({
                       <div>
                         <div className="font-medium">{invoice.invoiceNumber}</div>
                         <div className="mt-1 text-sm text-muted-foreground">
-                          ${invoice.total.toFixed(2)}
+                          $
+                          {invoice.total.toFixed(2)}
                         </div>
                       </div>
                       <span
@@ -200,8 +203,11 @@ const ClientProjectDetailPage = async ({
             <div className="rounded-lg border bg-card p-6">
               <h3 className="mb-4 text-lg font-semibold">Files</h3>
               <FileList
-                files={projectFiles.map((f) => ({
+                files={projectFiles.map(f => ({
                   ...f,
+                  size: f.size || 0,
+                  mimeType: f.mimeType || 'application/octet-stream',
+                  url: f.url,
                   createdAt: new Date(f.createdAt),
                 }))}
                 canDelete={false}
@@ -215,4 +221,3 @@ const ClientProjectDetailPage = async ({
 };
 
 export default ClientProjectDetailPage;
-

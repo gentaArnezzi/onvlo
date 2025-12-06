@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 
-interface OnboardingStepsProps {
+type OnboardingStepsProps = {
   organizationName: string;
   steps: {
     id: string;
@@ -11,7 +10,7 @@ interface OnboardingStepsProps {
     component: React.ReactNode;
   }[];
   onComplete: () => void;
-}
+};
 
 export function OnboardingSteps({
   organizationName,
@@ -56,7 +55,7 @@ export function OnboardingSteps({
               >
                 <div className="flex items-center">
                   <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
+                    className={`flex size-8 items-center justify-center rounded-full text-sm font-medium ${
                       index <= currentStep
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted-foreground/20 text-muted-foreground'
@@ -83,10 +82,28 @@ export function OnboardingSteps({
 
       {/* Step Content */}
       <div className="mx-auto max-w-4xl px-6 py-8">
-        <h1 className="mb-6 text-3xl font-bold">{currentStepData.title}</h1>
-        {currentStepData.component}
+        <h1 className="mb-6 text-3xl font-bold">{currentStepData?.title}</h1>
+        {currentStepData?.component}
+
+        {/* Navigation Buttons */}
+        <div className="mt-8 flex justify-between">
+          <button
+            type="button"
+            onClick={goBack}
+            disabled={currentStep === 0}
+            className={`rounded px-4 py-2 ${currentStep === 0 ? 'cursor-not-allowed opacity-50' : 'hover:bg-muted'}`}
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            onClick={goNext}
+            className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
+          >
+            {currentStep === steps.length - 1 ? 'Complete Onboarding' : 'Next'}
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-

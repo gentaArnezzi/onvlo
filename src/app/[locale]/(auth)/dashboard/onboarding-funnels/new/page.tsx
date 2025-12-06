@@ -1,10 +1,11 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
+import { FunnelFormWrapper } from '@/components/forms/FunnelFormWrapper';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
+
 import { createFunnel, getOrganization } from '../actions';
-import { FunnelFormWrapper } from '@/components/forms/FunnelFormWrapper';
 
 const NewFunnelPage = async () => {
   const org = await getOrganization();
@@ -12,6 +13,9 @@ const NewFunnelPage = async () => {
   async function handleCreate(data: any) {
     'use server';
     const funnel = await createFunnel(data);
+    if (!funnel) {
+      throw new Error('Failed to create funnel');
+    }
     redirect(`/dashboard/onboarding-funnels/${funnel.id}`);
   }
 
@@ -41,4 +45,3 @@ const NewFunnelPage = async () => {
 };
 
 export default NewFunnelPage;
-

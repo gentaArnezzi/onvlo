@@ -1,21 +1,22 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
+import { LeadsKanbanView } from '@/components/kanban/LeadsKanbanView';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
+
 import { getLeads, updateLead } from '../actions';
-import { LeadsKanbanView } from '@/components/kanban/LeadsKanbanView';
 
 const LeadsKanbanPage = async () => {
   const leads = await getLeads();
 
   async function handleMoveLead(
     leadId: string,
-    fromStage: string,
+
     toStage: string,
   ) {
     'use server';
-    await updateLead(Number(leadId), { stage: toStage });
+    await updateLead(Number(leadId), { stage: toStage as any });
     redirect('/dashboard/leads/kanban');
   }
 
@@ -43,4 +44,3 @@ const LeadsKanbanPage = async () => {
 };
 
 export default LeadsKanbanPage;
-

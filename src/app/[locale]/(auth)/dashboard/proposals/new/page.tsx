@@ -1,17 +1,18 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
+import { ProposalFormWrapper } from '@/components/forms/ProposalFormWrapper';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
-import { createProposal, getProposalTemplates } from '../actions';
+
 import { getClients } from '../../clients/actions';
 import { getLeads } from '../../leads/actions';
-import { ProposalFormWrapper } from '@/components/forms/ProposalFormWrapper';
+import { createProposal, getProposalTemplates } from '../actions';
 
-interface NewProposalPageProps {
+type NewProposalPageProps = {
   params: { locale: string };
   searchParams: Promise<{ clientId?: string; leadId?: string; templateId?: string }>;
-}
+};
 
 const NewProposalPage = async ({ searchParams }: NewProposalPageProps) => {
   const params = await searchParams;
@@ -30,6 +31,9 @@ const NewProposalPage = async ({ searchParams }: NewProposalPageProps) => {
       leadId: data.leadId ? Number(data.leadId) : null,
     };
     const proposal = await createProposal(proposalData);
+    if (!proposal) {
+      throw new Error('Failed to create proposal');
+    }
     redirect(`/dashboard/proposals/${proposal.id}`);
   }
 
@@ -37,7 +41,7 @@ const NewProposalPage = async ({ searchParams }: NewProposalPageProps) => {
   let defaultContent = '';
   if (params.templateId) {
     const template = templates.find(
-      (t) => t.id === Number(params.templateId),
+      t => t.id === Number(params.templateId),
     );
     if (template) {
       defaultContent = template.content;
@@ -77,4 +81,3 @@ const NewProposalPage = async ({ searchParams }: NewProposalPageProps) => {
 };
 
 export default NewProposalPage;
-

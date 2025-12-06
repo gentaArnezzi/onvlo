@@ -1,6 +1,6 @@
 export type InvoiceStatus = 'Draft' | 'Sent' | 'Paid' | 'Overdue';
 
-export interface Invoice {
+export type Invoice = {
   id: number;
   organizationId: string;
   clientId: number;
@@ -17,9 +17,9 @@ export interface Invoice {
   paidAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
-export interface InvoiceItem {
+export type InvoiceItem = {
   id: number;
   invoiceId: number;
   description: string;
@@ -28,5 +28,4 @@ export interface InvoiceItem {
   total: number;
   createdAt: Date;
   updatedAt: Date;
-}
-
+};

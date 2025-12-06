@@ -1,12 +1,11 @@
-import React from 'react';
 import {
   Document,
   Page,
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
-  Font,
 } from '@react-pdf/renderer';
+import React from 'react';
 
 // Register a standard font (optional, using default Helvetica for now)
 // Font.register({ family: 'Roboto', src: '...' });
@@ -88,7 +87,7 @@ const styles = StyleSheet.create({
   colQty: { width: '15%', textAlign: 'right' },
   colPrice: { width: '15%', textAlign: 'right' },
   colTotal: { width: '20%', textAlign: 'right' },
-  
+
   headerText: {
     fontSize: 10,
     fontWeight: 'bold',
@@ -145,12 +144,12 @@ const styles = StyleSheet.create({
   },
 });
 
-interface InvoicePDFProps {
+type InvoicePDFProps = {
   invoice: any;
   items: any[];
   client: any;
   organization: any;
-}
+};
 
 export const InvoicePDF = ({ invoice, items, client, organization }: InvoicePDFProps) => (
   <Document>
@@ -159,7 +158,10 @@ export const InvoicePDF = ({ invoice, items, client, organization }: InvoicePDFP
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>INVOICE</Text>
-          <Text style={styles.subtitle}>#{invoice.invoiceNumber}</Text>
+          <Text style={styles.subtitle}>
+            #
+            {invoice.invoiceNumber}
+          </Text>
         </View>
         <View style={styles.companyInfo}>
           <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{organization?.name || 'Agency Name'}</Text>
@@ -180,7 +182,7 @@ export const InvoicePDF = ({ invoice, items, client, organization }: InvoicePDFP
           <Text style={styles.value}>
             {new Date(invoice.createdAt).toLocaleDateString()}
           </Text>
-          
+
           <Text style={styles.label}>DUE DATE</Text>
           <Text style={styles.value}>
             {new Date(invoice.dueDate).toLocaleDateString()}
@@ -202,14 +204,16 @@ export const InvoicePDF = ({ invoice, items, client, organization }: InvoicePDFP
           <Text style={[styles.colTotal, styles.headerText]}>AMOUNT</Text>
         </View>
         {items.map((item, index) => (
-          <View key={index} style={styles.tableRow}>
+          <View key={`item-${index}`} style={styles.tableRow}>
             <Text style={[styles.colDesc, styles.rowText]}>{item.description}</Text>
             <Text style={[styles.colQty, styles.rowText]}>{item.quantity}</Text>
             <Text style={[styles.colPrice, styles.rowText]}>
-              ${Number(item.unitPrice).toFixed(2)}
+              $
+              {Number(item.unitPrice).toFixed(2)}
             </Text>
             <Text style={[styles.colTotal, styles.rowText]}>
-              ${(item.quantity * item.unitPrice).toFixed(2)}
+              $
+              {(item.quantity * item.unitPrice).toFixed(2)}
             </Text>
           </View>
         ))}
@@ -219,16 +223,27 @@ export const InvoicePDF = ({ invoice, items, client, organization }: InvoicePDFP
       <View style={styles.totals}>
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Subtotal</Text>
-          <Text style={styles.totalValue}>${Number(invoice.subtotal).toFixed(2)}</Text>
+          <Text style={styles.totalValue}>
+            $
+            {Number(invoice.subtotal).toFixed(2)}
+          </Text>
         </View>
         <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%)</Text>
-          <Text style={styles.totalValue}>${Number(invoice.tax).toFixed(2)}</Text>
+          <Text style={styles.totalLabel}>
+            Tax (
+            {invoice.taxRate}
+            %)
+          </Text>
+          <Text style={styles.totalValue}>
+            $
+            {Number(invoice.tax).toFixed(2)}
+          </Text>
         </View>
         <View style={styles.totalRow}>
           <Text style={[styles.totalLabel, { fontWeight: 'bold', color: '#111827' }]}>Total</Text>
           <Text style={[styles.totalValue, styles.grandTotal]}>
-            ${Number(invoice.total).toFixed(2)}
+            $
+            {Number(invoice.total).toFixed(2)}
           </Text>
         </View>
       </View>
@@ -237,7 +252,10 @@ export const InvoicePDF = ({ invoice, items, client, organization }: InvoicePDFP
       <View style={styles.footer}>
         <Text>Thank you for your business!</Text>
         {invoice.notes && (
-          <Text style={{ marginTop: 5, fontStyle: 'italic' }}>Note: {invoice.notes}</Text>
+          <Text style={{ marginTop: 5, fontStyle: 'italic' }}>
+            Note:
+            {invoice.notes}
+          </Text>
         )}
       </View>
     </Page>

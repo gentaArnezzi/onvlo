@@ -1,15 +1,16 @@
-import { db } from '@/libs/DB';
-import { invoicesSchema } from '@/models/Schema';
-import { Env } from '@/libs/Env';
 import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+import { db } from '@/libs/DB';
+import { Env } from '@/libs/Env';
+import { invoicesSchema } from '@/models/Schema';
+
 const stripe = Env.STRIPE_SECRET_KEY
   ? new Stripe(Env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
-    })
+    apiVersion: '2024-06-20',
+  })
   : null;
 
 export async function POST(req: Request) {
@@ -70,4 +71,3 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ received: true });
 }
-

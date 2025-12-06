@@ -1,10 +1,11 @@
 'use server';
 
+import { and, eq } from 'drizzle-orm';
+import { z } from 'zod';
+
 import { db } from '@/libs/DB';
 import { leadsSchema } from '@/models/Schema';
 import { requireAuth } from '@/utils/permissions';
-import { and, eq } from 'drizzle-orm';
-import { z } from 'zod';
 
 const createLeadSchema = z.object({
   name: z.string().min(1),
@@ -79,7 +80,7 @@ export async function deleteLead(id: number) {
 }
 
 export async function convertLeadToClient(leadId: number) {
-  const { orgId } = await requireAuth();
+  await requireAuth();
 
   const lead = await getLeadById(leadId);
   if (!lead) {
@@ -96,6 +97,7 @@ export async function convertLeadToClient(leadId: number) {
     phone: lead.phone,
     company: lead.company,
     notes: lead.notes,
+    status: 'active',
   });
 
   // Update lead status to Won
@@ -103,4 +105,3 @@ export async function convertLeadToClient(leadId: number) {
 
   return client;
 }
-

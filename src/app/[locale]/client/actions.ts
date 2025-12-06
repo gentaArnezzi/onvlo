@@ -1,6 +1,8 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
+import { and, eq } from 'drizzle-orm';
+
 import { db } from '@/libs/DB';
 import {
   clientsSchema,
@@ -8,7 +10,6 @@ import {
   projectsSchema,
   tasksSchema,
 } from '@/models/Schema';
-import { and, eq } from 'drizzle-orm';
 
 export async function getClientByEmail(email: string) {
   const [client] = await db
@@ -52,7 +53,7 @@ export async function getClientTasks(projectIds: number[]) {
     .where(eq(tasksSchema.visibleToClient, true));
 
   // Filter by projectIds (in production, use sql`IN` for better performance)
-  return tasks.filter((task) => projectIds.includes(task.projectId));
+  return tasks.filter(task => projectIds.includes(task.projectId));
 }
 
 export async function getClientFiles(projectIds: number[]) {
@@ -69,11 +70,11 @@ export async function getClientFiles(projectIds: number[]) {
     .orderBy(filesSchema.createdAt);
 
   // Filter by projectIds
-  return files.filter((file) => file.projectId && projectIds.includes(file.projectId));
+  return files.filter(file => file.projectId && projectIds.includes(file.projectId));
 }
 
 export async function getClientPortalData() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     throw new Error('Unauthorized');
@@ -103,7 +104,7 @@ export async function getClientPortalData() {
   const invoices = await getClientInvoices(client.id);
 
   // Get visible tasks for client's projects
-  const projectIds = projects.map((p) => p.id);
+  const projectIds = projects.map(p => p.id);
   const tasks = await getClientTasks(projectIds);
 
   return {
@@ -114,3 +115,68 @@ export async function getClientPortalData() {
   };
 }
 
+export async function createClientPaymentSession(invoiceId: number) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error('Unauthorized');
+  }
+
+  // Get client data to verify ownership
+  const data = await getClientPortalData();
+  const { client } = data;
+
+  // Get invoice and verify ownership
+  const [invoice] = await db
+    .select()
+    .from(invoicesSchema)
+    .where(and(eq(invoicesSchema.id, invoiceId), eq(invoicesSchema.clientId, client.id)))
+    .limit(1);
+
+  if (!invoice) {
+    throw new Error('Invoice not found or access denied');
+  }
+
+  // Get invoice items
+  const { invoiceItemsSchema } = await import('@/models/Schema');
+  const items = await db
+    .select()
+    .from(invoiceItemsSchema)
+    .where(eq(invoiceItemsSchema.invoiceId, invoiceId));
+
+  // Initialize Stripe
+  const { Env } = await import('@/libs/Env');
+  const Stripe = (await import('stripe')).default;
+
+  if (!Env.STRIPE_SECRET_KEY) {
+    throw new Error('Stripe not configured');
+  }
+
+  const stripe = new Stripe(Env.STRIPE_SECRET_KEY, {
+    apiVersion: '2024-06-20',
+  });
+
+  // Create Stripe Checkout Session
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: items.map(item => ({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: item.description,
+        },
+        unit_amount: Math.round(item.unitPrice * 100), // Convert to cents
+      },
+      quantity: item.quantity,
+    })),
+    mode: 'payment',
+    success_url: `${Env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/client/invoices/${invoice.id}?success=true`,
+    cancel_url: `${Env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/client/invoices/${invoice.id}?canceled=true`,
+    metadata: {
+      invoiceId: invoice.id.toString(),
+      clientId: client.id.toString(),
+      source: 'client_portal',
+    },
+  });
+
+  return session.url;
+}

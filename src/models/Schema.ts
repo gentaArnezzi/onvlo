@@ -260,3 +260,68 @@ export const filesSchema = pgTable('files', {
     .notNull(),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 });
+
+// Time Tracking schema
+export const timeEntriesSchema = pgTable('time_entries', {
+  id: serial('id').primaryKey(),
+  organizationId: text('organization_id').notNull(),
+  taskId: integer('task_id'),
+  projectId: integer('project_id'),
+  userId: text('user_id').notNull(), // Clerk user ID
+  description: text('description'),
+  startTime: timestamp('start_time', { mode: 'date' }).notNull(),
+  endTime: timestamp('end_time', { mode: 'date' }),
+  duration: integer('duration'), // in seconds
+  billable: boolean('billable').default(true).notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+// Deals schema
+export const dealsSchema = pgTable('deals', {
+  id: serial('id').primaryKey(),
+  organizationId: text('organization_id').notNull(),
+  leadId: integer('lead_id'), // Optional link to source lead
+  title: text('title').notNull(),
+  value: real('value').default(0),
+  currency: text('currency').default('USD'),
+  stage: text('stage').default('New').notNull(), // New, Discovery, Proposal, Negotiation, Won, Lost
+  priority: text('priority').default('Medium'),
+  expectedCloseDate: timestamp('expected_close_date', { mode: 'date' }),
+  ownerId: text('owner_id'), // Clerk user ID
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+// Deal Activities schema
+export const dealActivitiesSchema = pgTable('deal_activities', {
+  id: serial('id').primaryKey(),
+  dealId: integer('deal_id').notNull(),
+  type: text('type').notNull(), // Note, Call, Email, Meeting, StageChange
+  content: text('content').notNull(),
+  performedBy: text('performed_by').notNull(), // Clerk user ID
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+// Client Interactions schema
+export const clientInteractionsSchema = pgTable('client_interactions', {
+  id: serial('id').primaryKey(),
+  organizationId: text('organization_id').notNull(),
+  clientId: integer('client_id').notNull(),
+  type: text('type').notNull(), // Call, Email, Meeting, Note
+  content: text('content').notNull(),
+  date: timestamp('date', { mode: 'date' }).defaultNow().notNull(),
+  sentiment: text('sentiment'), // Positive, Neutral, Negative
+  performedBy: text('performed_by').notNull(), // Clerk user ID
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});

@@ -1,9 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
-import Link from 'next/link';
 
 import { DashboardHeader } from '@/features/dashboard/DashboardHeader';
-import { ActiveLink } from '@/components/ActiveLink';
 
 export async function generateMetadata(props: { params: { locale: string } }) {
   const t = await getTranslations({

@@ -1,9 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getFilePath } from '@/utils/storage';
 import fs from 'node:fs/promises';
 
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
+import { getFilePath } from '@/utils/storage';
+
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { path: string[] } },
 ) {
   try {
@@ -39,7 +42,7 @@ export async function GET(
 
     const contentType = contentTypes[ext || ''] || 'application/octet-stream';
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(fileBuffer as any, {
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `inline; filename="${relativePath.split('/').pop()}"`,
@@ -53,4 +56,3 @@ export async function GET(
     );
   }
 }
-

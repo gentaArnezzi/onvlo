@@ -1,4 +1,4 @@
-export interface ReplacementData {
+export type ReplacementData = {
   client?: {
     name: string;
     company?: string | null;
@@ -16,7 +16,7 @@ export interface ReplacementData {
   agency?: {
     name: string;
   } | null;
-}
+};
 
 export function replacePlaceholders(content: string, data: ReplacementData): string {
   let processedContent = content;
@@ -26,19 +26,19 @@ export function replacePlaceholders(content: string, data: ReplacementData): str
   const recipientCompany = data.client?.company || data.lead?.company || '';
   const recipientEmail = data.client?.email || data.lead?.email || '';
 
-  processedContent = processedContent.replace(/{{client_name}}/g, recipientName);
-  processedContent = processedContent.replace(/{{client_company}}/g, recipientCompany);
-  processedContent = processedContent.replace(/{{client_email}}/g, recipientEmail);
+  processedContent = processedContent.replace(/\{\{client_name\}\}/g, recipientName);
+  processedContent = processedContent.replace(/\{\{client_company\}\}/g, recipientCompany);
+  processedContent = processedContent.replace(/\{\{client_email\}\}/g, recipientEmail);
 
   // Proposal Placeholders
   if (data.proposal) {
     const dateStr = new Date(data.proposal.createdAt).toLocaleDateString();
-    processedContent = processedContent.replace(/{{proposal_date}}/g, dateStr);
+    processedContent = processedContent.replace(/\{\{proposal_date\}\}/g, dateStr);
   }
 
   // Agency Placeholders
   if (data.agency) {
-    processedContent = processedContent.replace(/{{agency_name}}/g, data.agency.name);
+    processedContent = processedContent.replace(/\{\{agency_name\}\}/g, data.agency.name);
   }
 
   return processedContent;

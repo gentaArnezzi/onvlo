@@ -1,9 +1,10 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,22 +27,25 @@ const invoiceFormSchema = z.object({
 
 export type InvoiceFormData = z.infer<typeof invoiceFormSchema>;
 
-interface InvoiceFormProps {
+const emptyClients: Array<{ id: number; name: string }> = [];
+const emptyProjects: Array<{ id: number; title: string }> = [];
+
+type InvoiceFormProps = {
   defaultValues?: Partial<InvoiceFormData>;
   onSubmit: (data: InvoiceFormData) => Promise<void>;
   onCancel?: () => void;
   isLoading?: boolean;
   clients?: Array<{ id: number; name: string }>;
   projects?: Array<{ id: number; title: string }>;
-}
+};
 
 export function InvoiceForm({
   defaultValues,
   onSubmit,
   onCancel,
   isLoading = false,
-  clients = [],
-  projects = [],
+  clients,
+  projects,
 }: InvoiceFormProps) {
   const [items, setItems] = useState<
     Array<{ description: string; quantity: number; unitPrice: number }>
@@ -50,6 +54,9 @@ export function InvoiceForm({
       { description: '', quantity: 1, unitPrice: 0 },
     ],
   );
+
+  const resolvedClients = clients ?? emptyClients;
+  const resolvedProjects = projects ?? emptyProjects;
 
   const {
     register,
@@ -86,7 +93,7 @@ export function InvoiceForm({
     newItems[index] = {
       ...newItems[index],
       [field]: field === 'description' ? value : Number(value),
-    };
+    } as { description: string; quantity: number; unitPrice: number };
     setItems(newItems);
   };
 
@@ -120,7 +127,7 @@ export function InvoiceForm({
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <option value="">Select a client</option>
-          {clients.map((client) => (
+          {resolvedClients.map(client => (
             <option key={client.id} value={client.id}>
               {client.name}
             </option>
@@ -139,7 +146,7 @@ export function InvoiceForm({
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <option value="">None</option>
-          {projects.map((project) => (
+          {resolvedProjects.map(project => (
             <option key={project.id} value={project.id}>
               {project.title}
             </option>
@@ -194,11 +201,11 @@ export function InvoiceForm({
         </div>
         <div className="space-y-2">
           {items.map((item, index) => (
-            <div key={index} className="flex gap-2 rounded-md border p-2">
+            <div key={`item-${index}`} className="flex gap-2 rounded-md border p-2">
               <Input
                 placeholder="Description"
                 value={item.description}
-                onChange={(e) => updateItem(index, 'description', e.target.value)}
+                onChange={e => updateItem(index, 'description', e.target.value)}
                 className="flex-1"
               />
               <Input
@@ -206,9 +213,8 @@ export function InvoiceForm({
                 step="0.01"
                 placeholder="Qty"
                 value={item.quantity}
-                onChange={(e) =>
-                  updateItem(index, 'quantity', e.target.value)
-                }
+                onChange={e =>
+                  updateItem(index, 'quantity', e.target.value)}
                 className="w-20"
               />
               <Input
@@ -216,9 +222,8 @@ export function InvoiceForm({
                 step="0.01"
                 placeholder="Price"
                 value={item.unitPrice}
-                onChange={(e) =>
-                  updateItem(index, 'unitPrice', e.target.value)
-                }
+                onChange={e =>
+                  updateItem(index, 'unitPrice', e.target.value)}
                 className="w-32"
               />
               <Button
@@ -240,15 +245,28 @@ export function InvoiceForm({
       <div className="rounded-md border bg-muted p-4">
         <div className="flex justify-between">
           <span>Subtotal:</span>
-          <span>${calculateSubtotal().toFixed(2)}</span>
+          <span>
+            $
+            {calculateSubtotal().toFixed(2)}
+          </span>
         </div>
         <div className="flex justify-between">
-          <span>Tax ({taxRate}%):</span>
-          <span>${calculateTax().toFixed(2)}</span>
+          <span>
+            Tax (
+            {taxRate}
+            %):
+          </span>
+          <span>
+            $
+            {calculateTax().toFixed(2)}
+          </span>
         </div>
         <div className="mt-2 flex justify-between font-bold">
           <span>Total:</span>
-          <span>${calculateTotal().toFixed(2)}</span>
+          <span>
+            $
+            {calculateTotal().toFixed(2)}
+          </span>
         </div>
       </div>
 
@@ -275,4 +293,3 @@ export function InvoiceForm({
     </form>
   );
 }
-

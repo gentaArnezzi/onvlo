@@ -1,8 +1,9 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,11 +14,11 @@ const brandingSchema = z.object({
 
 export type BrandingFormData = z.infer<typeof brandingSchema>;
 
-interface BrandingFormProps {
+type BrandingFormProps = {
   defaultValues?: Partial<BrandingFormData>;
   onSubmit: (data: BrandingFormData) => Promise<void>;
   isLoading?: boolean;
-}
+};
 
 export function BrandingForm({
   defaultValues,
@@ -28,7 +29,6 @@ export function BrandingForm({
     register,
     handleSubmit,
     watch,
-    formState: { errors },
   } = useForm<BrandingFormData>({
     resolver: zodResolver(brandingSchema),
     defaultValues: {
@@ -76,4 +76,3 @@ export function BrandingForm({
     </form>
   );
 }
-

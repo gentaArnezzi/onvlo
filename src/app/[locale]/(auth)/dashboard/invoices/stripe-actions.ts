@@ -1,13 +1,15 @@
 'use server';
 
-import { Env } from '@/libs/Env';
-import { getInvoiceById } from './actions';
 import Stripe from 'stripe';
+
+import { Env } from '@/libs/Env';
+
+import { getInvoiceById } from './actions';
 
 const stripe = Env.STRIPE_SECRET_KEY
   ? new Stripe(Env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
-    })
+    apiVersion: '2024-06-20',
+  })
   : null;
 
 export async function createPaymentLink(invoiceId: number) {
@@ -26,7 +28,7 @@ export async function createPaymentLink(invoiceId: number) {
   // Create Stripe Checkout Session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
-    line_items: items.map((item) => ({
+    line_items: items.map(item => ({
       price_data: {
         currency: 'usd',
         product_data: {
@@ -46,4 +48,3 @@ export async function createPaymentLink(invoiceId: number) {
 
   return session.url;
 }
-

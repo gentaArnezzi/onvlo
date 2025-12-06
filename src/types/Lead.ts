@@ -1,6 +1,6 @@
 export type LeadStage = 'New' | 'Qualified' | 'Proposal Sent' | 'Won' | 'Lost';
 
-export interface Lead {
+export type Lead = {
   id: number;
   organizationId: string;
   name: string;
@@ -13,5 +13,4 @@ export interface Lead {
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
-}
-
+};

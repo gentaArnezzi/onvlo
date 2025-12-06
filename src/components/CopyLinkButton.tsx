@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 
-interface CopyLinkButtonProps {
+type CopyLinkButtonProps = {
   url: string;
-}
+};
 
 export function CopyLinkButton({ url }: CopyLinkButtonProps) {
   const [copied, setCopied] = useState(false);
@@ -28,4 +29,3 @@ export function CopyLinkButton({ url }: CopyLinkButtonProps) {
     </Button>
   );
 }
-

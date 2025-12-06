@@ -1,19 +1,22 @@
-import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
 
+import { InteractionTimeline } from '@/components/clients/InteractionTimeline';
+import { ClientFormWrapper } from '@/components/forms/ClientFormWrapper';
+import { LogInteractionForm } from '@/components/forms/LogInteractionForm';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
-import { getClientById, updateClient, deleteClient } from '../actions';
-import { getProjectsByClient } from '../../projects/actions';
-import { ClientFormWrapper } from '@/components/forms/ClientFormWrapper';
 
-interface ClientDetailPageProps {
+import { getProjectsByClient } from '../../projects/actions';
+import { deleteClient, getClientById, getInteractions, updateClient } from '../actions';
+
+type ClientDetailPageProps = {
   params: { id: string; locale: string };
-}
+};
 
 const ClientDetailPage = async ({ params }: ClientDetailPageProps) => {
   const clientId = Number(params.id);
-  if (isNaN(clientId)) {
+  if (Number.isNaN(clientId)) {
     notFound();
   }
 
@@ -22,7 +25,10 @@ const ClientDetailPage = async ({ params }: ClientDetailPageProps) => {
     notFound();
   }
 
-  const projects = await getProjectsByClient(clientId);
+  const [projects, interactions] = await Promise.all([
+    getProjectsByClient(clientId),
+    getInteractions(clientId),
+  ]);
 
   async function handleUpdate(data: Parameters<typeof updateClient>[1]) {
     'use server';
@@ -69,25 +75,27 @@ const ClientDetailPage = async ({ params }: ClientDetailPageProps) => {
         <div className="space-y-4">
           <div className="rounded-lg border bg-card p-6">
             <h3 className="mb-4 text-lg font-semibold">Projects</h3>
-            {projects.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No projects yet</p>
-            ) : (
-              <ul className="space-y-2">
-                {projects.map((project) => (
-                  <li key={project.id}>
-                    <Link
-                      href={`/dashboard/projects/${project.id}`}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      {project.title}
-                    </Link>
-                    <span className="ml-2 rounded-full bg-muted px-2 py-1 text-xs">
-                      {project.status}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {projects.length === 0
+              ? (
+                  <p className="text-sm text-muted-foreground">No projects yet</p>
+                )
+              : (
+                  <ul className="space-y-2">
+                    {projects.map(project => (
+                      <li key={project.id}>
+                        <Link
+                          href={`/dashboard/projects/${project.id}`}
+                          className="text-sm text-primary hover:underline"
+                        >
+                          {project.title}
+                        </Link>
+                        <span className="ml-2 rounded-full bg-muted px-2 py-1 text-xs">
+                          {project.status}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
             <Link href={`/dashboard/projects/new?clientId=${clientId}`}>
               <Button variant="outline" className="mt-4 w-full">
                 Create New Project
@@ -128,6 +136,14 @@ const ClientDetailPage = async ({ params }: ClientDetailPageProps) => {
                 </dd>
               </div>
             </dl>
+          </div>
+
+          <div className="rounded-lg border bg-card p-6">
+            <h3 className="mb-4 text-lg font-semibold">Interactions</h3>
+            <LogInteractionForm clientId={clientId} />
+            <div className="mt-6 border-t pt-6">
+              <InteractionTimeline interactions={interactions} />
+            </div>
           </div>
         </div>
       </div>

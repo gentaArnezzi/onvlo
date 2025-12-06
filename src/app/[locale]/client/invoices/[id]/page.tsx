@@ -1,29 +1,31 @@
-import { notFound } from 'next/navigation';
+import { eq } from 'drizzle-orm';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
-import { getClientPortalData } from '../../actions';
 import { db } from '@/libs/DB';
 import { invoiceItemsSchema } from '@/models/Schema';
-import { eq } from 'drizzle-orm';
 
-interface InvoiceDetailPageProps {
+import { getClientPortalData } from '../../actions';
+import { PayInvoiceButton } from './PayInvoiceButton';
+
+type InvoiceDetailPageProps = {
   params: { id: string; locale: string };
-}
+};
 
 const ClientInvoiceDetailPage = async ({
   params,
 }: InvoiceDetailPageProps) => {
   const invoiceId = Number(params.id);
-  if (isNaN(invoiceId)) {
+  if (Number.isNaN(invoiceId)) {
     notFound();
   }
 
   const data = await getClientPortalData();
   const { invoices } = data;
 
-  const invoice = invoices.find((inv) => inv.id === invoiceId);
+  const invoice = invoices.find(inv => inv.id === invoiceId);
 
   if (!invoice) {
     notFound();
@@ -106,7 +108,7 @@ const ClientInvoiceDetailPage = async ({
         <div className="rounded-lg border bg-card p-6">
           <h2 className="mb-4 text-lg font-semibold">Line Items</h2>
           <div className="space-y-2">
-            {items.map((item) => (
+            {items.map(item => (
               <div
                 key={item.id}
                 className="flex items-center justify-between border-b pb-2"
@@ -114,11 +116,15 @@ const ClientInvoiceDetailPage = async ({
                 <div>
                   <div className="font-medium">{item.description}</div>
                   <div className="text-sm text-muted-foreground">
-                    {item.quantity} × ${item.unitPrice.toFixed(2)}
+                    {item.quantity}
+                    {' '}
+                    × $
+                    {item.unitPrice.toFixed(2)}
                   </div>
                 </div>
                 <div className="font-medium">
-                  ${item.total.toFixed(2)}
+                  $
+                  {item.total.toFixed(2)}
                 </div>
               </div>
             ))}
@@ -126,24 +132,35 @@ const ClientInvoiceDetailPage = async ({
           <div className="mt-4 space-y-2 border-t pt-4">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${invoice.subtotal.toFixed(2)}</span>
+              <span>
+                $
+                {invoice.subtotal.toFixed(2)}
+              </span>
             </div>
             {invoice.tax > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">
-                  Tax ({invoice.taxRate}%)
+                  Tax (
+                  {invoice.taxRate}
+                  %)
                 </span>
-                <span>${invoice.tax.toFixed(2)}</span>
+                <span>
+                  $
+                  {invoice.tax.toFixed(2)}
+                </span>
               </div>
             )}
             <div className="flex justify-between border-t pt-2 font-bold">
               <span>Total</span>
-              <span>${invoice.total.toFixed(2)}</span>
+              <span>
+                $
+                {invoice.total.toFixed(2)}
+              </span>
             </div>
           </div>
           {invoice.status !== 'Paid' && (
             <div className="mt-6">
-              <Button className="w-full">Pay Invoice</Button>
+              <PayInvoiceButton invoiceId={invoice.id} />
             </div>
           )}
         </div>
@@ -153,4 +170,3 @@ const ClientInvoiceDetailPage = async ({
 };
 
 export default ClientInvoiceDetailPage;
-

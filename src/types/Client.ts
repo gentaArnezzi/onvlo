@@ -1,6 +1,6 @@
 export type ClientStatus = 'active' | 'inactive' | 'archived';
 
-export interface Client {
+export type Client = {
   id: number;
   organizationId: string;
   name: string;
@@ -12,5 +12,4 @@ export interface Client {
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
-}
-
+};

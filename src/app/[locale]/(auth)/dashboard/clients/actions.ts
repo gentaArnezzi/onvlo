@@ -1,10 +1,11 @@
 'use server';
 
-import { db } from '@/libs/DB';
-import { clientsSchema } from '@/models/Schema';
-import { requireAuth } from '@/utils/permissions';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
+
+import { db } from '@/libs/DB';
+import { clientInteractionsSchema, clientsSchema } from '@/models/Schema';
+import { requireAuth } from '@/utils/permissions';
 
 const createClientSchema = z.object({
   name: z.string().min(1),
@@ -85,3 +86,39 @@ export async function deleteClient(id: number) {
     .where(and(eq(clientsSchema.id, id), eq(clientsSchema.organizationId, orgId)));
 }
 
+export async function getInteractions(clientId: number) {
+  const { orgId } = await requireAuth();
+
+  const interactions = await db
+    .select()
+    .from(clientInteractionsSchema)
+    .where(
+      and(
+        eq(clientInteractionsSchema.clientId, clientId),
+        eq(clientInteractionsSchema.organizationId, orgId),
+      ),
+    )
+    .orderBy(desc(clientInteractionsSchema.date));
+
+  return interactions;
+}
+
+export async function logInteraction(data: {
+  clientId: number;
+  type: string;
+  content: string;
+  sentiment?: string;
+  date?: Date;
+}) {
+  const { orgId, userId } = await requireAuth();
+
+  await db.insert(clientInteractionsSchema).values({
+    organizationId: orgId,
+    clientId: data.clientId,
+    type: data.type,
+    content: data.content,
+    sentiment: data.sentiment,
+    date: data.date || new Date(),
+    performedBy: userId,
+  });
+}

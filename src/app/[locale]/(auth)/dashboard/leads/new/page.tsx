@@ -1,15 +1,19 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
+import { LeadFormWrapper } from '@/components/forms/LeadFormWrapper';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
+
 import { createLead } from '../actions';
-import { LeadFormWrapper } from '@/components/forms/LeadFormWrapper';
 
 const NewLeadPage = async () => {
   async function handleCreate(data: Parameters<typeof createLead>[0]) {
     'use server';
     const lead = await createLead(data);
+    if (!lead) {
+      throw new Error('Failed to create lead');
+    }
     redirect(`/dashboard/leads/${lead.id}`);
   }
 

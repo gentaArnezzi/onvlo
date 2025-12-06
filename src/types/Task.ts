@@ -1,7 +1,7 @@
 export type TaskStatus = 'Backlog' | 'In Progress' | 'Review' | 'Done';
 export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Urgent';
 
-export interface Task {
+export type Task = {
   id: number;
   projectId: number;
   title: string;
@@ -14,5 +14,4 @@ export interface Task {
   labels: string | null;
   createdAt: Date;
   updatedAt: Date;
-}
-
+};

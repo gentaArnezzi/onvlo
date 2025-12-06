@@ -1,10 +1,11 @@
 'use server';
 
-import { db } from '@/libs/DB';
-import { proposalsSchema, clientsSchema, leadsSchema, organizationSchema } from '@/models/Schema';
-import { replacePlaceholders } from '@/utils/placeholder';
-import { eq, or } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
+
+import { db } from '@/libs/DB';
+import { clientsSchema, leadsSchema, organizationSchema, proposalsSchema } from '@/models/Schema';
+import { replacePlaceholders } from '@/utils/placeholder';
 
 export async function getPublicProposal(id: number) {
   const [proposal] = await db
@@ -46,16 +47,16 @@ export async function getPublicProposal(id: number) {
   const processedContent = replacePlaceholders(proposal.content, {
     client: proposal.clientId ? recipientInfo : null,
     lead: proposal.leadId ? recipientInfo : null,
-    proposal: proposal,
+    proposal,
     agency: organization ? { name: organization.name || '' } : null,
   });
 
-  return { 
+  return {
     proposal: {
       ...proposal,
       content: processedContent,
-    }, 
-    recipientInfo 
+    },
+    recipientInfo,
   };
 }
 
@@ -82,4 +83,3 @@ export async function signProposal(
 
   return proposal;
 }
-

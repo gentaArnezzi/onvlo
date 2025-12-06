@@ -1,39 +1,25 @@
-import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
 
+import { LeadFormWrapper } from '@/components/forms/LeadFormWrapper';
 import { Button } from '@/components/ui/button';
 import { TitleBar } from '@/features/dashboard/TitleBar';
-import { getLeadById, updateLead, deleteLead, convertLeadToClient } from '../actions';
-import { LeadFormWrapper } from '@/components/forms/LeadFormWrapper';
 
-interface LeadDetailPageProps {
+import { convertLeadToClient, deleteLead, getLeadById, updateLead } from '../actions';
+
+type LeadDetailPageProps = {
   params: { id: string; locale: string };
-}
+};
 
 const LeadDetailPage = async ({ params }: LeadDetailPageProps) => {
   const leadId = Number(params.id);
-  if (isNaN(leadId)) {
+  if (Number.isNaN(leadId)) {
     notFound();
   }
 
   const lead = await getLeadById(leadId);
   if (!lead) {
     notFound();
-  }
-
-  async function handleUpdate(formData: FormData) {
-    'use server';
-    const data = {
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
-      company: formData.get('company') as string,
-      source: formData.get('source') as string,
-      stage: formData.get('stage') as any,
-      notes: formData.get('notes') as string,
-    };
-    await updateLead(leadId, data);
-    redirect(`/dashboard/leads/${leadId}`);
   }
 
   async function handleDelete() {

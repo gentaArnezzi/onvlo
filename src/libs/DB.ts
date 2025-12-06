@@ -66,7 +66,7 @@ if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD && Env.DATABASE_URL) {
     globalForDb.client = new PGlite();
     // Initialize drizzle immediately, migrations will run when client is ready
     globalForDb.pgliteDrizzle = drizzlePglite(globalForDb.client, { schema });
-    
+
     // Run migrations when client is ready (non-blocking)
     globalForDb.client.waitReady.then(() => {
       if (!globalForDb._pgliteInitialized) {

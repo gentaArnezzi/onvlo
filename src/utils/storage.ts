@@ -1,6 +1,6 @@
-import { Env } from '@/libs/Env';
-import path from 'node:path';
+import { Buffer } from 'node:buffer';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 
 // For MVP, using local file storage
 // In production, replace with Vercel Blob or S3
@@ -21,12 +21,12 @@ const ALLOWED_TYPES = [
   'text/csv',
 ];
 
-export interface UploadResult {
+export type UploadResult = {
   url: string;
   filename: string;
   size: number;
   mimeType: string;
-}
+};
 
 export async function uploadFile(
   file: File,
@@ -53,7 +53,7 @@ export async function uploadFile(
 
   // Generate unique filename
   const timestamp = Date.now();
-  const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const sanitizedName = file.name.replace(/[^a-z0-9.-]/gi, '_');
   const filename = `${timestamp}_${sanitizedName}`;
   const filePath = path.join(projectDir, filename);
 
@@ -82,7 +82,7 @@ export async function deleteFile(url: string): Promise<void> {
     throw new Error('Invalid file URL');
   }
 
-  const relativePath = decodeURIComponent(match[1]);
+  const relativePath = decodeURIComponent(match[1] || '');
   const filePath = path.join(UPLOAD_DIR, relativePath);
 
   try {
@@ -111,4 +111,3 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
 
   return { valid: true };
 }
-

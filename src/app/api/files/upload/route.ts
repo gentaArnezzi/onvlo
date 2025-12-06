@@ -1,12 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
 import { db } from '@/libs/DB';
 import { filesSchema } from '@/models/Schema';
 import { uploadFile, validateFile } from '@/utils/storage';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, orgId } = auth();
+    const { userId, orgId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -61,4 +63,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

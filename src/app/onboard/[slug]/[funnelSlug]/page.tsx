@@ -1,9 +1,11 @@
+import { and, eq } from 'drizzle-orm';
+
 import { db } from '@/libs/DB';
 import {
   onboardingFunnelsSchema,
   organizationSchema,
 } from '@/models/Schema';
-import { and, eq } from 'drizzle-orm';
+
 import { submitOnboardingData } from './actions';
 import { OnboardingClient } from './OnboardingClient';
 
@@ -65,15 +67,11 @@ const OnboardingPage = async ({
   return (
     <OnboardingClient
       organizationName={org.name || 'Our Agency'}
-      funnelName={funnel.name}
       formFields={formFields}
       agreementTemplate={agreementTemplate}
-      orgSlug={params.slug}
-      funnelSlug={params.funnelSlug}
       onSubmit={handleSubmit}
     />
   );
 };
 
 export default OnboardingPage;
-

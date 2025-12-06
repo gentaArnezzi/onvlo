@@ -1,10 +1,11 @@
 'use server';
 
+import { and, eq } from 'drizzle-orm';
+import { z } from 'zod';
+
 import { db } from '@/libs/DB';
 import { projectsSchema, tasksSchema } from '@/models/Schema';
 import { requireAuth } from '@/utils/permissions';
-import { and, eq } from 'drizzle-orm';
-import { z } from 'zod';
 
 const createTaskSchema = z.object({
   projectId: z.number(),
@@ -130,7 +131,7 @@ export async function updateTask(
   id: number,
   data: Partial<z.infer<typeof createTaskSchema>>,
 ) {
-  const { orgId } = await requireAuth();
+  await requireAuth();
 
   // Verify task belongs to organization
   const task = await getTaskById(id);
@@ -148,7 +149,7 @@ export async function updateTask(
 }
 
 export async function deleteTask(id: number) {
-  const { orgId } = await requireAuth();
+  await requireAuth();
 
   // Verify task belongs to organization
   const task = await getTaskById(id);
@@ -184,4 +185,3 @@ export async function getMyTasks() {
 
   return tasks;
 }
-
